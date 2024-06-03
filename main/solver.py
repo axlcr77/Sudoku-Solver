@@ -1,10 +1,57 @@
+import numpy as np
+
 from getBoard import Board
+
+
+def getBoxes(game):
+    boxes = []
+    box1 = game[0:3, 0:3]
+    box1f = box1.flatten()
+
+    box2 = game[0:3, 3:6]
+    box2f = box2.flatten()
+
+    box3 = game[0:3, 6:9]
+    box3f = box3.flatten()
+
+    box4 = game[3:6, 0:3]
+    box4f = box4.flatten()
+
+    box5 = game[3:6, 3:6]
+    box5f = box5.flatten()
+
+    box6 = game[3:6, 6:9]
+    box6f = box6.flatten()
+
+    box7 = game[6:9, 0:3]
+    box7f = box7.flatten()
+
+    box8 = game[6:9, 3:6]
+    box8f = box8.flatten()
+
+    box9 = game[6:9, 6:9]
+    box9f = box9.flatten()
+
+    boxes.append(box1f)
+    boxes.append(box2f)
+    boxes.append(box3f)
+    boxes.append(box4f)
+    boxes.append(box5f)
+    boxes.append(box6f)
+    boxes.append(box7f)
+    boxes.append(box8f)
+    boxes.append(box9f)
+    return boxes
+
 
 
 def solve(file):
     instance = Board(file)
     game = instance.board
     solved = False
+    boxes = getBoxes(game)
+
+    #TODO: Currently you have the boxes as an array so use that to keep solving the game.
     while not solved:
         # count is for counting the number of boxes, rows, or columns
         for row in range(9):
@@ -34,7 +81,12 @@ def solveByBox(row, col, game):
 def solveByRow(row, col, game):
     if game[row][col] == 0:
         possibleNumsBox = checkBox(row, game)
-    pass
+        if len(possibleNumsBox) == 1:
+            game[row][col] = possibleNumsBox[0]
+        else:
+            possibleNumsCol = checkColumn(row,game)
+            if len(possibleNumsCol) == 1:
+                game[row][col] = possibleNumsCol[0]
 
 
 def solveByCol(row, col, game):

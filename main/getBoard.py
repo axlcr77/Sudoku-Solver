@@ -19,7 +19,6 @@ class Board:
                         [0, 0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0, 0]])
-        
         with open(file, "r") as file2:
             lines = file2.readlines()
             rows = [line.strip() for line in lines]
