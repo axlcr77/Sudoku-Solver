@@ -2,145 +2,77 @@ import numpy as np
 
 from getBoard import Board
 
-
-def getBoxes(game):
-    boxes = []
-    box1 = game[0:3, 0:3]
-    box1f = box1.flatten()
-
-    box2 = game[0:3, 3:6]
-    box2f = box2.flatten()
-
-    box3 = game[0:3, 6:9]
-    box3f = box3.flatten()
-
-    box4 = game[3:6, 0:3]
-    box4f = box4.flatten()
-
-    box5 = game[3:6, 3:6]
-    box5f = box5.flatten()
-
-    box6 = game[3:6, 6:9]
-    box6f = box6.flatten()
-
-    box7 = game[6:9, 0:3]
-    box7f = box7.flatten()
-
-    box8 = game[6:9, 3:6]
-    box8f = box8.flatten()
-
-    box9 = game[6:9, 6:9]
-    box9f = box9.flatten()
-
-    boxes.append(box1f)
-    boxes.append(box2f)
-    boxes.append(box3f)
-    boxes.append(box4f)
-    boxes.append(box5f)
-    boxes.append(box6f)
-    boxes.append(box7f)
-    boxes.append(box8f)
-    boxes.append(box9f)
-    return boxes
+M = 9
 
 
+def solve(game, row, col, num):
 
-def solve(file):
-    instance = Board(file)
-    game = instance.board
-    solved = False
-    boxes = getBoxes(game)
+    # Check the row for possible matches
+    for i in range(9):
+        if game[row][i] == num:
+            return False
 
-    #TODO: Currently you have the boxes as an array so use that to keep solving the game.
-    while not solved:
-        # count is for counting the number of boxes, rows, or columns
-        for row in range(9):
-            for col in range(9):
-                solveByBox(row, col, game)
-                # solveByRow(row, col, game)
-                # solveByCol(row, col, game)
+    # Check the column
+    for j in range(9):
+        if game[j][col] == num:
+            return False
 
-        solved = solvedCheck(solved, game)
+    # Check the box
+    boxRow = row - (row % 3)
+    boxCol = col - (col % 3)
+    for x in range(3):
+        for y in range(3):
+            if game[x + boxRow][y + boxCol] == num:
+                return False
+    return True
 
-    return instance
+
+def Sudoku(game, row, col):
+    if (row == M - 1 and col == M):
+        return True
+    # When the col is at the very end, increase the row and reset the col
+    if col == M:
+        row += 1
+        col = 0
+
+    # Recursive call to move along for numbers that don't need to be solved
+    # 0 represents a number that needs to be solved
+    if game[row][col] > 0:
+
+        # Increase the column so that the game can be solved by rows
+        return Sudoku(game, row, col + 1)
+
+    # Start at 1 and then solve for all numbers
+    for num in range(1, M + 1):
+
+        # Solve function will handle checking rows, columns, and boxes
+        if solve(game, row, col, num):
+
+            # If the solve function finds that a num is a match then this function will change the value directly.
+            game[row][col] = num
+
+            # This will check to see if the number that was added is the correct one
+            # as well as check to see if the count is at the end.
+            if Sudoku(game, row, col + 1):
+                return True
+
+        game[row][col] = 0
+    return False
 
 
-def solveByBox(row, col, game):
-    if game[row][col] == 0:
-        possibleNumsRow = checkRow(row,game)
-        if len(possibleNumsRow) == 1:
-                game[row][col] = possibleNumsRow[0]
-        else:
-            #Check column
-            possibleNumsCol = checkColumn(col, game)
-            if len(possibleNumsCol) == 1:
-                game[row][col] = possibleNumsCol[0]
+def printSolvedGame(game):
+    for i in range(M):
+        for j in range(M):
+            print(game[i][j], end=" ")
+        print()
+
+
+instance = Board("TextFiles/exper.txt")
+game = instance.board
 
 
 
-def solveByRow(row, col, game):
-    if game[row][col] == 0:
-        possibleNumsBox = checkBox(row, game)
-        if len(possibleNumsBox) == 1:
-            game[row][col] = possibleNumsBox[0]
-        else:
-            possibleNumsCol = checkColumn(row,game)
-            if len(possibleNumsCol) == 1:
-                game[row][col] = possibleNumsCol[0]
-
-
-def solveByCol(row, col, game):
-    pass
-
-
-def solvedCheck(solved, game):
-    solved = True
-    if game.__contains__(0):
-        solved = False
-    return solved
-
-
-def checkRow(index,game):
-    nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    row = game[index]
-    numsToRemove = []
-    for num in nums:
-        if row.__contains__(num):
-            numsToRemove.append(num)
-    if len(numsToRemove) == 9:
-        return []
-    for i in numsToRemove:
-        nums.remove(i)
-    return nums
-
-
-def checkColumn(index, game):
-    nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    col = game[:, index]
-    numsToRemove = []
-    for num in nums:
-        if col.__contains__(num):
-            numsToRemove.append(num)
-    if len(numsToRemove) == 9:
-        return []
-    for i in numsToRemove:
-        nums.remove(i)
-    return nums
-
-
-def checkBox(index, game):
-    box = game[:index+2, :index+2]
-    nums = [1,2,3,4,5,6,7,8,9]
-    numsToremove = []
-    for num in nums:
-        if box.__contains__(num):
-            numsToremove.append(num)
-    if len(numsToremove) == 9:
-        return []
-    for i in numsToremove:
-        nums.remove(i)
-    return nums
-
-
-arr = solve("TextFiles/testSolvebyBox2.txt")
-print(arr.board)
+if Sudoku(game, 0, 0):
+    printSolvedGame(game)
+else:
+    print("Solution does not exist")
